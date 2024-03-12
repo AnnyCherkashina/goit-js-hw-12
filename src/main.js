@@ -1,8 +1,8 @@
+
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-
 
 import { renderMarkup } from './js/render-functions';
 import { getPhotos } from './js/pixabay-api';
@@ -15,6 +15,8 @@ const loadMoreBtn = document.querySelector('.load-more-btn');
 hideLoadMoreBtn();
 
 let userSearch;
+let page = 1;
+const perPage = 15;
 
 formElem.addEventListener('submit', async e => {
     e.preventDefault();
@@ -45,18 +47,16 @@ formElem.addEventListener('submit', async e => {
                 titleColor: '#fff',
                 messageColor: '#fff',
                 backgroundColor: '#ef4040',
-                message:
-                    'Sorry, there are no images matching your search query. Please try again!',
+                message: 'Sorry, there are no images matching your search query. Please try again!',
                 position: 'topRight',
             });
         }
-
         renderMarkup(imageEl, data.hits);
+        showLoadMoreBtn();
     } catch (error) {
         console.log(error);
     } finally {
         hideLoader();
-        showLoadMoreBtn();
     }
 
     e.target.reset();
@@ -86,9 +86,6 @@ function showLoadMoreBtn() {
     }
 }
 
-let page = 1;
-let perPage = 15;
-
 loadMoreBtn.addEventListener('click', async e => {
     showLoader();
 
@@ -100,3 +97,4 @@ loadMoreBtn.addEventListener('click', async e => {
 
     hideLoader();
 });
+
