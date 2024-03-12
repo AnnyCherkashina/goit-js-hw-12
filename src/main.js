@@ -3,18 +3,26 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-import { renderMarkup, refreshLightBox } from './js/render-functions';
+
+import { renderMarkup } from './js/render-functions';
 import { getPhotos } from './js/pixabay-api';
 
 const formElem = document.querySelector('.search-form');
 const loader = document.querySelector('.loader');
 const imageEl = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-more-btn');
 
-formElem.addEventListener('submit', e => {
+hideLoadMoreBtn();
+
+let userSearch;
+
+formElem.addEventListener('submit', async e => {
     e.preventDefault();
     imageEl.innerHTML = '';
 
-    const userSearch = e.target.elements.search.value.trim();
+    page = 1;
+    userSearch = e.target.elements.search.value.trim();
+
     if (userSearch === '') {
         iziToast.warning({
             titleColor: '#fff',
@@ -28,29 +36,28 @@ formElem.addEventListener('submit', e => {
 
     showLoader();
 
-    getPhotos(userSearch)
-        .then(data => {
-            if (data.hits.length === 0) {
-                return iziToast.error({
-                    title: 'Error',
-                    titleColor: '#fff',
-                    messageColor: '#fff',
-                    backgroundColor: '#ef4040',
-                    message:
-                        'Sorry, there are no images matching your search query. Please try again!',
-                    position: 'topRight',
-                });
+    try {
+        const data = await getPhotos(userSearch, page);
+        if (data.hits.length === 0) {
+            hideLoadMoreBtn();
+            return iziToast.error({
+                title: 'Error',
+                titleColor: '#fff',
+                messageColor: '#fff',
+                backgroundColor: '#ef4040',
+                message:
+                    'Sorry, there are no images matching your search query. Please try again!',
+                position: 'topRight',
+            });
+        }
 
-            }
-            renderMarkup(imageEl, data.hits);
-            refreshLightBox();
-        })
-        .catch(error => {
-            console.log(error);
-        })
-        .finally(() => {
-            hideLoader();
-        });
+        renderMarkup(imageEl, data.hits);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        hideLoader();
+        showLoadMoreBtn();
+    }
 
     e.target.reset();
 });
@@ -61,17 +68,35 @@ function showLoader() {
     }
 }
 
-// function hideLoader() {
-//     if (loader) {
-//         loader.style.display = 'none';
-//     }
-// }
 function hideLoader() {
-    const loader = document.querySelector('.loader');
     if (loader) {
         loader.style.display = 'none';
     }
 }
 
+function hideLoadMoreBtn() {
+    if (loadMoreBtn) {
+        loadMoreBtn.style.display = 'none';
+    }
+}
 
-document.addEventListener('DOMContentLoaded', hideLoader);
+function showLoadMoreBtn() {
+    if (loadMoreBtn) {
+        loadMoreBtn.style.display = 'block';
+    }
+}
+
+let page = 1;
+let perPage = 15;
+
+loadMoreBtn.addEventListener('click', async e => {
+    showLoader();
+
+    page += 1;
+
+    const data = await getPhotos(userSearch, page);
+
+    renderMarkup(imageEl, data.hits);
+
+    hideLoader();
+});
