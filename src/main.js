@@ -96,11 +96,9 @@ loadMoreBtn.addEventListener('click', async e => {
     renderMarkup(imageEl, data.hits);
 
     hideLoader();
+
+
+    const cardHeight = document.querySelector('.gallery-item').getBoundingClientRect().height;
+
+    window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
 });
-function scrollBtn() {
-    window.scrollBy({
-        top: window.innerHeight,
-        behavior: 'smooth',
-    });
-}
-loadMoreBtn.addEventListener('click', scrollBtn);
