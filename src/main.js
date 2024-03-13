@@ -63,6 +63,7 @@ formElem.addEventListener('submit', async e => {
             titleColor: '#fff',
             messageColor: '#fff',
             backgroundColor: '#ef4040',
+            message: 'Something went wrong.Please try again later.',
             position: 'topRight',
         });
     } finally {
