@@ -18,6 +18,8 @@ let userSearch;
 let page = 1;
 const perPage = 15;
 
+loader.style.display = 'none';
+
 formElem.addEventListener('submit', async e => {
     e.preventDefault();
     imageEl.innerHTML = '';
@@ -36,35 +38,77 @@ formElem.addEventListener('submit', async e => {
         return;
     }
 
-    showLoader();
+    loader.style.display = 'block';
 
     try {
         const data = await getPhotos(userSearch, page);
+
         if (data.hits.length === 0) {
             hideLoadMoreBtn();
-            return iziToast.error({
-                title: 'Error',
+            return iziToast.warning({
                 titleColor: '#fff',
                 messageColor: '#fff',
-                backgroundColor: '#ef4040',
-                message: 'Sorry, there are no images matching your search query. Please try again!',
+                backgroundColor: '#ffa000',
+                message: `No results found for "${userSearch}". Please try another search.`,
                 position: 'topRight',
             });
         }
+
         renderMarkup(imageEl, data.hits);
         showLoadMoreBtn();
     } catch (error) {
         console.log(error);
+        iziToast.error({
+            titleColor: '#fff',
+            messageColor: '#fff',
+            backgroundColor: '#ef4040',
+            message: 'Something went wrong. Please try again later.',
+            position: 'topRight',
+        });
+    } finally {
+        loader.style.display = 'none';
+    }
+});
+
+loadMoreBtn.addEventListener('click', async e => {
+    showLoader();
+
+    page += 1;
+
+    try {
+        const data = await getPhotos(userSearch, page);
+
+        if (data.hits.length === 0) {
+            hideLoadMoreBtn();
+            iziToast.info({
+                titleColor: '#fff',
+                messageColor: '#fff',
+                backgroundColor: '#2980b9',
+                message: 'You reached the end of results.',
+                position: 'topRight',
+            });
+            return;
+        }
+
+        renderMarkup(imageEl, data.hits);
+    } catch (error) {
+        console.log(error);
+        iziToast.error({
+            titleColor: '#fff',
+            messageColor: '#fff',
+            backgroundColor: '#ef4040',
+            message: 'Something went wrong. Please try again later.',
+            position: 'topRight',
+        });
     } finally {
         hideLoader();
     }
-
-    e.target.reset();
 });
+
 
 function showLoader() {
     if (loader) {
-        loader.style.display = 'block';
+        loader.style.display = 'none';
     }
 }
 
@@ -85,20 +129,42 @@ function showLoadMoreBtn() {
         loadMoreBtn.style.display = 'block';
     }
 }
-
 loadMoreBtn.addEventListener('click', async e => {
     showLoader();
 
     page += 1;
 
-    const data = await getPhotos(userSearch, page);
+    try {
+        const data = await getPhotos(userSearch, page);
 
-    renderMarkup(imageEl, data.hits);
+        if (data.hits.length === 0) {
+            hideLoadMoreBtn();
+            return iziToast.warning({
+                titleColor: '#fff',
+                messageColor: '#fff',
+                backgroundColor: '#ffa000',
+                message: 'No more images to load.',
+                position: 'topRight',
+            });
+        }
 
-    hideLoader();
+        renderMarkup(imageEl, data.hits);
 
+        // Отримуємо висоту однієї карточки галереї
+        const cardHeight = document.querySelector('.gallery-item').getBoundingClientRect().height;
 
-    const cardHeight = document.querySelector('.gallery-item').getBoundingClientRect().height;
-
-    window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+        // Прокручуємо сторінку на дві висоти карточки галереї
+        window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+    } catch (error) {
+        console.log(error);
+        iziToast.error({
+            titleColor: '#fff',
+            messageColor: '#fff',
+            backgroundColor: '#ef4040',
+            message: 'Something went wrong. Please try again later.',
+            position: 'topRight',
+        });
+    } finally {
+        hideLoader();
+    }
 });
