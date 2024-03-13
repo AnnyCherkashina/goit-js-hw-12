@@ -18,6 +18,7 @@ let userSearch;
 let page = 1;
 const perPage = 15;
 
+
 loader.style.display = 'none';
 
 formElem.addEventListener('submit', async e => {
@@ -62,11 +63,10 @@ formElem.addEventListener('submit', async e => {
             titleColor: '#fff',
             messageColor: '#fff',
             backgroundColor: '#ef4040',
-            message: 'Something went wrong. Please try again later.',
             position: 'topRight',
         });
     } finally {
-        loader.style.display = 'none';
+        hideLoader();
     }
 });
 
@@ -91,6 +91,9 @@ loadMoreBtn.addEventListener('click', async e => {
         }
 
         renderMarkup(imageEl, data.hits);
+
+
+        window.scrollBy({ top: 2 * document.querySelector('.gallery-item').getBoundingClientRect().height, behavior: 'smooth' });
     } catch (error) {
         console.log(error);
         iziToast.error({
@@ -108,7 +111,7 @@ loadMoreBtn.addEventListener('click', async e => {
 
 function showLoader() {
     if (loader) {
-        loader.style.display = 'none';
+        loader.style.display = 'block';
     }
 }
 
@@ -129,42 +132,4 @@ function showLoadMoreBtn() {
         loadMoreBtn.style.display = 'block';
     }
 }
-loadMoreBtn.addEventListener('click', async e => {
-    showLoader();
 
-    page += 1;
-
-    try {
-        const data = await getPhotos(userSearch, page);
-
-        if (data.hits.length === 0) {
-            hideLoadMoreBtn();
-            return iziToast.warning({
-                titleColor: '#fff',
-                messageColor: '#fff',
-                backgroundColor: '#ffa000',
-                message: 'No more images to load.',
-                position: 'topRight',
-            });
-        }
-
-        renderMarkup(imageEl, data.hits);
-
-
-        const cardHeight = document.querySelector('.gallery-item').getBoundingClientRect().height;
-
-
-        window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
-    } catch (error) {
-        console.log(error);
-        iziToast.error({
-            titleColor: '#fff',
-            messageColor: '#fff',
-            backgroundColor: '#ef4040',
-            message: 'Something went wrong. Please try again later.',
-            position: 'topRight',
-        });
-    } finally {
-        hideLoader();
-    }
-});
