@@ -97,4 +97,10 @@ loadMoreBtn.addEventListener('click', async e => {
 
     hideLoader();
 });
-
+function scrollBtn() {
+    window.scrollBy({
+        top: window.innerHeight,
+        behavior: 'smooth',
+    });
+}
+loadMoreBtn.addEventListener('click', scrollBtn);
