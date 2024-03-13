@@ -150,10 +150,10 @@ loadMoreBtn.addEventListener('click', async e => {
 
         renderMarkup(imageEl, data.hits);
 
-        // Отримуємо висоту однієї карточки галереї
+
         const cardHeight = document.querySelector('.gallery-item').getBoundingClientRect().height;
 
-        // Прокручуємо сторінку на дві висоти карточки галереї
+
         window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
     } catch (error) {
         console.log(error);

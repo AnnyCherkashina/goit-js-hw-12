@@ -1,3 +1,4 @@
+
 import SimpleLightbox from 'simplelightbox';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
@@ -8,6 +9,11 @@ export const lightbox = new SimpleLightbox('.gallery a', {
 });
 
 const imageEl = document.querySelector('.gallery');
+const loader = document.querySelector('.loader');
+
+document.addEventListener('DOMContentLoaded', () => {
+  hideLoader();
+});
 
 export function imageTemplate({
   webformatURL,
@@ -39,4 +45,16 @@ export function imagesTemplate(arr) {
 export function renderMarkup(imageEl, arr) {
   imageEl.insertAdjacentHTML('beforeend', imagesTemplate(arr));
   lightbox.refresh();
+}
+
+function showLoader() {
+  if (loader) {
+    loader.style.display = 'block';
+  }
+}
+
+function hideLoader() {
+  if (loader) {
+    loader.style.display = 'none';
+  }
 }
